@@ -2,6 +2,9 @@ import json
 
 def lambda_handler(event, context):
     a=10
+    b=20
+    c=30
+    print(a+b)
     # TODO implement
     return {
         'statusCode': 200,
