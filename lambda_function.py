@@ -4,6 +4,7 @@ def lambda_handler(event, context):
     a=10
     b=20
     c=30
+    d=30
     print(a+b)
     # TODO implement
     return {
