@@ -3,7 +3,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.11 # Specify your Python version
+      python: 3.11  # Ensure you are specifying the correct Python version
     commands:
       - echo "Installing dependencies..."
       - pip install --target ./package -r requirements.txt
@@ -16,7 +16,7 @@ phases:
 
   post_build:
     commands:
-      - echo "Uploading to S3 bucket: wikitablescrapexample/my_dependency_sept"
+      - echo "Uploading deployment_package.zip to S3 bucket: wikitablescrapexample/my_dependency_sept"
       - aws s3 cp ../deployment_package.zip s3://wikitablescrapexample/my_dependency_sept/deployment_package.zip
       - echo "Deploying to Lambda"
       - aws lambda update-function-code --function-name Hello_world --s3-bucket wikitablescrapexample --s3-key my_dependency_sept/deployment_package.zip
