@@ -6,28 +6,21 @@ phases:
       python: 3.11 # Specify your Python version
     commands:
       - echo "Installing dependencies..."
-      # Install dependencies from requirements.txt into the 'package' directory
       - pip install --target ./package -r requirements.txt
 
   build:
     commands:
-      - echo "This is build phase... Zipping my lambda function and dependencies"
-      # Copy the lambda_function.py to the 'package' directory
+      - echo "Zipping lambda function and dependencies"
       - cp lambda_function.py ./package
-      # Zip the contents of the 'package' directory into deployment_package.zip
       - cd package && zip -r ../deployment_package.zip .
 
   post_build:
     commands:
-      - echo "Uploading deployment_package.zip to S3 bucket: wikitablescrapexample/my_dependency_sept"
-      # Upload the zip file to the S3 bucket in the specified folder
+      - echo "Uploading to S3 bucket: wikitablescrapexample/my_dependency_sept"
       - aws s3 cp ../deployment_package.zip s3://wikitablescrapexample/my_dependency_sept/deployment_package.zip
-      - echo "Zip file successfully uploaded to S3"
       - echo "Deploying to Lambda"
-      # Deploy the zip package to AWS Lambda
       - aws lambda update-function-code --function-name Hello_world --s3-bucket wikitablescrapexample --s3-key my_dependency_sept/deployment_package.zip
 
 artifacts:
   files:
     - deployment_package.zip
-
