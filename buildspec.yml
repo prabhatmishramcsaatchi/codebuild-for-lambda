@@ -3,21 +3,20 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing dependencies into library..."
-      - pip install -r requirements.txt -t my-library/python/lib/python3.11/site-packages
+      - echo "Installing dependencies directly into the python folder..."
+      - pip install -r requirements.txt -t my-library/python
 
   build:
     commands:
-      - echo "Zipping the library..."
+      - echo "Zipping the python folder..."
       - cd my-library
-      - zip -r ../my_library.zip .
+      - zip -r ../my_library.zip python
 
   post_build:
     commands:
-      - echo "Uploading the library to S3..."
+      - echo "Uploading the library zip to S3..."
       - aws s3 cp ../my_library.zip s3://wikitablescrapexample/libraries/my_library.zip
 
 artifacts:
   files:
     - my_library.zip
-
