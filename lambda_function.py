@@ -16,7 +16,8 @@ def lambda_handler(event, context):
     b=20
     c=30
     d=30
-    
+    print("dsfkjfwef")
+
     print("new code part")
     print(a+b)
     # TODO implement
