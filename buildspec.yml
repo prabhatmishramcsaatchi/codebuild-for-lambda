@@ -3,33 +3,35 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Building Lambda layer for mapp_hootsuit_data_fetch function..."
-      - echo "Docker version:"
-      - docker --version
+      - echo "Pulling Lambda Python 3.11 image..."
+      - docker pull public.ecr.aws/lambda/python:3.11
       
   build:
     commands:
-      - echo "Building inside Lambda Python 3.11 runtime container..."
-      - |
-        docker run --rm \
-          -v "$PWD":/var/task \
-          public.ecr.aws/lambda/python:3.11 \
-          /bin/sh -c "
-            cd /var/task && \
-            echo 'Installing packages from requirements.txt...' && \
-            pip install -r requirements.txt -t python/ --no-cache-dir && \
-            echo 'Creating Lambda layer zip...' && \
-            zip -r python.zip python/
-          "
-      - echo "Layer package created successfully"
+      - echo "Creating directory structure..."
+      - mkdir -p python
+      
+      - echo "Installing packages in Lambda environment..."
+      - docker run --rm -v "$PWD":/var/task public.ecr.aws/lambda/python:3.11 pip install --target /var/task/python paramiko
+      
+      - echo "Creating zip file..."
+      - zip -r python.zip python/
+      
+      - echo "Verifying zip was created..."
       - ls -lh python.zip
       
   post_build:
     commands:
-      - echo "Uploading layer to S3..."
-      - aws s3 cp python.zip s3://fluency-ccs-co-gsc-planning-and-evaluation-tool-uk/hootsuit_library/python.zip
-      - echo "Upload complete!"
-      - echo "Layer is ready to be attached to mapp_hootsuit_data_fetch Lambda function"
+      - echo "Checking if python.zip exists..."
+      - |
+        if [ -f python.zip ]; then
+          echo "File exists, uploading to S3..."
+          aws s3 cp python.zip s3://fluency-ccs-co-gsc-planning-and-evaluation-tool-uk/hootsuit_library/python.zip
+          echo "Upload complete!"
+        else
+          echo "Error: python.zip not found"
+          exit 1
+        fi
       
 artifacts:
   files:
