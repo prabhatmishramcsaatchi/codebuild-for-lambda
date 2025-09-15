@@ -20,7 +20,7 @@ phases:
   post_build:
     commands:
       - echo "Uploading the library zip to S3..."
-      - aws s3 cp python.zip s3://wikitablescrapexample/libraries/python.zip
+      - aws s3 cp python.zip s3://fluency-ccs-co-gsc-planning-and-evaluation-tool-uk/hootsuit_library/python.zip
       
 artifacts:
   files:
