@@ -11,8 +11,13 @@ phases:
       - echo "Creating directory structure..."
       - mkdir -p python
       
-      - echo "Installing packages in Lambda environment..."
-      - docker run --rm -v "$PWD":/var/task public.ecr.aws/lambda/python:3.11 pip install --target /var/task/python paramiko
+      - echo "Installing packages in Lambda environment with entrypoint override..."
+      - |
+        docker run --rm \
+          --entrypoint /bin/sh \
+          -v "$PWD":/var/task \
+          public.ecr.aws/lambda/python:3.11 \
+          -c "pip install --target /var/task/python paramiko"
       
       - echo "Creating zip file..."
       - zip -r python.zip python/
@@ -22,16 +27,9 @@ phases:
       
   post_build:
     commands:
-      - echo "Checking if python.zip exists..."
-      - |
-        if [ -f python.zip ]; then
-          echo "File exists, uploading to S3..."
-          aws s3 cp python.zip s3://fluency-ccs-co-gsc-planning-and-evaluation-tool-uk/hootsuit_library/python.zip
-          echo "Upload complete!"
-        else
-          echo "Error: python.zip not found"
-          exit 1
-        fi
+      - echo "Uploading to S3..."
+      - aws s3 cp python.zip s3://fluency-ccs-co-gsc-planning-and-evaluation-tool-uk/hootsuit_library/python.zip
+      - echo "Upload complete!"
       
 artifacts:
   files:
