@@ -8,10 +8,7 @@ phases:
       - echo "Installing dependencies for Lambda Python 3.11..."
       - python --version
       - pip --version
-      
-      # Force pip to use compatible manylinux versions for Lambda
-      - echo "Installing with Lambda-compatible binary wheels..."
-      - pip install --platform manylinux2014_x86_64 --only-binary=:all: -r requirements.txt -t my-library/python
+      - pip install -r requirements.txt -t my-library/python
       
   build:
     commands:
@@ -19,14 +16,11 @@ phases:
       - cd my-library
       - zip -r ../python.zip python
       - cd ..
-      - echo "Package size:"
-      - ls -lh python.zip
       
   post_build:
     commands:
       - echo "Uploading the library zip to S3..."
       - aws s3 cp python.zip s3://wikitablescrapexample/libraries/python.zip
-      - echo "Upload complete!"
       
 artifacts:
   files:
