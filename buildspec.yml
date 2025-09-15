@@ -2,25 +2,34 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: 3.11
     commands:
-      - echo "Installing dependencies for Lambda Python 3.11..."
-      - python --version
-      - pip --version
-      - pip install -r requirements.txt -t my-library/python
+      - echo "Building Lambda layer for mapp_hootsuit_data_fetch function..."
+      - echo "Docker version:"
+      - docker --version
       
   build:
     commands:
-      - echo "Zipping the python folder..."
-      - cd my-library
-      - zip -r ../python.zip python
-      - cd ..
+      - echo "Building inside Lambda Python 3.11 runtime container..."
+      - |
+        docker run --rm \
+          -v "$PWD":/var/task \
+          public.ecr.aws/lambda/python:3.11 \
+          /bin/sh -c "
+            cd /var/task && \
+            echo 'Installing packages from requirements.txt...' && \
+            pip install -r requirements.txt -t python/ --no-cache-dir && \
+            echo 'Creating Lambda layer zip...' && \
+            zip -r python.zip python/
+          "
+      - echo "Layer package created successfully"
+      - ls -lh python.zip
       
   post_build:
     commands:
-      - echo "Uploading the library zip to S3..."
+      - echo "Uploading layer to S3..."
       - aws s3 cp python.zip s3://fluency-ccs-co-gsc-planning-and-evaluation-tool-uk/hootsuit_library/python.zip
+      - echo "Upload complete!"
+      - echo "Layer is ready to be attached to mapp_hootsuit_data_fetch Lambda function"
       
 artifacts:
   files:
