@@ -10,13 +10,13 @@ phases:
     commands:
       - echo "Zipping the python folder..."
       - cd my-library
-      - zip -r ../my_library.zip python
+      - zip -r ../python.zip python
 
   post_build:
     commands:
       - echo "Uploading the library zip to S3..."
-      - aws s3 cp ../my_library.zip s3://wikitablescrapexample/libraries/my_library.zip
+      - aws s3 cp ../python.zip s3://wikitablescrapexample/libraries/python.zip
 
 artifacts:
   files:
-    - my_library.zip
+    - python.zip
